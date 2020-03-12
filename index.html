@@ -63,6 +63,7 @@
 
 
     drawCircleLegend();
+    drawColorLegend();
 
     let csv = 'Fire_Department_Calls_for_Services.csv';
 
@@ -338,12 +339,44 @@
 
       // fix the title spacing
       group.select('text.legendTitle').attr('dy', -8);
-
-      // note it is harder to get this to be two column using this package
-      // we have to select what was drawn and then move it around
     }
-    function drawColorLegend(){
 
+    function drawColorLegend() {
+
+      const legendWidth = 500;
+      const legendHeight = 500;
+
+
+      let svg = d3.select("body").select("#legend-svg")
+        .attr("width", legendWidth)
+        .attr("height", legendHeight);
+      // place legend in its own group
+      const group = svg.append('g').attr('id', 'color-legend');
+
+      // shift legend to appropriate position
+      group.attr('transform', translate(margin.right, 300));
+
+      const title = group.append('text')
+        .attr('class', 'axis-title')
+        .text('Call Type');
+
+      // fix the title spacing
+      title.attr('dy', -8);
+
+      // Color legend
+      var colorScale = d3.scaleOrdinal()
+        .domain(["Alarm", "Fire", "Non Life-threatening", "Potentially Life-Threatening"])
+        .range(["#1f77b4", "#d62728", "#ff7f0e", "#17becf"]);
+
+      // https://d3-legend.susielu.com/#size-linear
+      var colorLegend = d3.legendColor()
+        .scale(colorScale)
+        .shapePadding(5)
+        .shapeWidth(20)
+        .shapeHeight(20)
+        .labelOffset(12);
+
+      group.call(colorLegend);
     }
 
     function translate(x, y) {
