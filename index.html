@@ -216,10 +216,10 @@
         .style('opacity', 0.75);
 
       bubbles.attr('cx', function(d) {
-        return xScale(d[1]);
+        return xScale(d[1]) + 10;
       });
       bubbles.attr('cy', function(d) {
-        return yScale(d[0]);
+        return yScale(d[0]) + 7;
       });
       bubbles.attr('r', function(d) {
         return rScale(d[2]);
