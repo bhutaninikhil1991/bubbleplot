@@ -5,7 +5,7 @@ var margin = {
   left: 50
 };
 
-var svg_width = 1000,
+var svg_width = 960,
   svg_height = 800;
 
 var padding = 100;
@@ -21,7 +21,7 @@ var svg = d3.select("body").select("#main-svg")
   .attr("width", svg_width)
   .attr("height", svg_height);
 
-var div = d3.select("body").append("div")
+var div = d3.select("body #d3ImplementationSection .container").append("div")
   .attr("class", "tooltip")
   .style("opacity", 0);
 
@@ -174,7 +174,7 @@ function draw_bubbleplot(data, x_start, y_start, allBatallions, allStations, all
     }
   }
 
-  var colours = ["#1f77b4", "#d62728", "#ff7f0e", "#17becf"];
+  var colours = ["#1f77b4", "#d62728", "#ff7f0e", "#76b7b2"];
 
   var bubbles = g.selectAll('circle')
     .data(out)
@@ -322,7 +322,7 @@ function drawCircleLegend() {
     .scale(rScale)
     .shape('circle')
     .cells(6)
-    .ascending(true)
+    .ascending(false)
     .shapePadding(4)
     .labelOffset(10)
     .labelFormat("d")
@@ -360,7 +360,7 @@ function drawColorLegend() {
   // Color legend
   var colorScale = d3.scaleOrdinal()
     .domain(["Alarm", "Fire", "Non Life-threatening", "Potentially Life-Threatening"])
-    .range(["#1f77b4", "#d62728", "#ff7f0e", "#17becf"]);
+    .range(["#1f77b4", "#d62728", "#ff7f0e", "#76b7b2"]);
 
   // https://d3-legend.susielu.com/#size-linear
   var colorLegend = d3.legendColor()
