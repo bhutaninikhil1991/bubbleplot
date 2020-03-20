@@ -163,13 +163,16 @@ function draw_bubbleplot(data, x_start, y_start, allBatallions, allStations, all
     .attr("dy", "-3.5em")
     .attr("transform", "rotate(-90)");
 
+  d3.selectAll(".y-axis .tick text").on("click", filterBatallion);
+  d3.selectAll(".x-axis .tick text").on("click", filterStation);
+
   // covert map to array
   var out = [];
   var values = [];
   for (let k = 0; k < data[i].values.length; k++) {
     for (let h = 0; h < data[i].values[k].values.length; h++) {
       values = [];
-      values.push(data[i].values[k].key, data[i].values[k].values[h].key, data[i].values[k].values[h].value);
+      values.push(data[i].values[k].key, data[i].values[k].values[h].key, data[i].values[k].values[h].value, allCallTypes[i]);
       out.push(values);
     }
   }
@@ -183,7 +186,7 @@ function draw_bubbleplot(data, x_start, y_start, allBatallions, allStations, all
     .attr("id", (d, i) => d.id = "c" + i)
     .attr('fill', colours[i])
     .attr('stroke-width', 1)
-    .style('opacity', 0.75);
+  //.style('opacity', 0.75);
 
   bubbles.attr('cx', function(d) {
     return xScale(d[1]) + 10;
@@ -194,6 +197,20 @@ function draw_bubbleplot(data, x_start, y_start, allBatallions, allStations, all
   bubbles.attr('r', function(d) {
     return rScale(d[2]);
   });
+  bubbles.attr('class', function(d) {
+    if (d[2] > 800 && d[2] <= 1000)
+      return "class" + 1000;
+    else if (d[2] > 600 && d[2] <= 800)
+      return "class" + 800;
+    else if (d[2] > 400 && d[2] <= 600)
+      return "class" + 600;
+    else if (d[2] > 200 && d[2] <= 400)
+      return "class" + 400
+    else if (d[2] > 0 && d[2] <= 200)
+      return "class" + 200;
+    else
+      return "class" + 0;
+  });
 
   bubbles.style('stroke', 'black');
   bubbles.on("mouseover", function(d) {
@@ -202,16 +219,16 @@ function draw_bubbleplot(data, x_start, y_start, allBatallions, allStations, all
         .transition()
         .style("stroke-width", 1.5);
       showLabel(d, allCallTypes[i]);
-      fade(d, .1);
+      //fade(d, .1);
     })
     .on("mousemove", moveLabel)
     .on("mouseout", function(d) {
       d3.selectAll("circle#" + d.id)
         //.lower()
         .transition()
-        .style("stroke-width", 0.75);
+      //.style("stroke-width", 0.75);
       hideLabel();
-      fadeOut();
+      //fadeOut();
     })
 
 }
@@ -327,7 +344,10 @@ function drawCircleLegend() {
     .labelOffset(10)
     .labelFormat("d")
     .title('Average Incident Number')
-    .orient('vertical');
+    .orient('vertical')
+    .on('cellclick', function(d) {
+      toggleDataPoints(d);
+    });
 
   group.call(legendSize);
 
@@ -337,7 +357,7 @@ function drawCircleLegend() {
 
 function drawColorLegend() {
 
-  const legendWidth = 500;
+  const legendWidth = 300;
   const legendHeight = 500;
 
 
@@ -368,9 +388,54 @@ function drawColorLegend() {
     .shapePadding(5)
     .shapeWidth(20)
     .shapeHeight(20)
-    .labelOffset(12);
+    .labelOffset(12)
+    .on('cellclick', filterCallTypeGroup);
 
   group.call(colorLegend);
+}
+
+function toggleDataPoints(colorClass) {
+  //make everything hidden
+  d3.selectAll("#main-svg circle")
+    .classed('hidden', function() { // toggle "hidden" class
+      return !d3.select(this).classed('hidden');
+    });
+  // remove hidden class from specific values
+  d3.selectAll(`circle.${"class"+colorClass}`)
+    .classed('hidden', function() { // toggle "hidden" class
+      return !d3.select(this).classed('hidden');
+    });
+}
+
+function filterBatallion() {
+  let c = d3.select(this).text();
+  d3.selectAll("#main-svg circle")
+    .filter(function(d) {
+      return d[0] != c;
+    })
+    .classed('hidden', function() { // toggle "hidden" class
+      return !d3.select(this).classed('hidden');
+    });
+}
+
+function filterStation() {
+  let c = d3.select(this).text();
+  d3.selectAll("#main-svg circle")
+    .filter(function(d) {
+      return d[1] != c;
+    }).classed('hidden', function() { // toggle "hidden" class
+      return !d3.select(this).classed('hidden');
+    });
+}
+
+function filterCallTypeGroup() {
+  let c = d3.select(this).text();
+  d3.selectAll("#main-svg circle")
+    .filter(function(d) {
+      return d[3] != c;
+    }).classed('hidden', function() { // toggle "hidden" class
+      return !d3.select(this).classed('hidden');
+    });
 }
 
 function translate(x, y) {
