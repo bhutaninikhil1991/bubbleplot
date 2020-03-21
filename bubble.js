@@ -6,7 +6,7 @@ var margin = {
 };
 
 var svg_width = 960,
-  svg_height = 800;
+  svg_height = 700;
 
 var padding = 100;
 
@@ -155,7 +155,7 @@ function draw_bubbleplot(data, x_start, y_start, allBatallions, allStations, all
     .call(yAxis)
     .append('text')
     .attr('x', 8)
-    .attr('y', 0)
+    .attr('y', 20)
     .attr('text-anchor', 'end')
     .attr('class', 'label')
     .style('fill', 'black')
@@ -230,13 +230,16 @@ function draw_bubbleplot(data, x_start, y_start, allBatallions, allStations, all
       hideLabel();
       //fadeOut();
     })
+    .on("click", function(d) {
+      filterByBattalionAndStation(d);
+    });
 
 }
 
 function showLabel(d, callType) {
   var coords = [d3.event.clientX, d3.event.clientY];
-  var top = coords[1] + 15,
-    left = coords[0] + 10;
+  var top = coords[1] - d3.select("#d3ImplementationSection").node().getBoundingClientRect().y - 30,
+    left = coords[0] - d3.select("#d3ImplementationSection").node().getBoundingClientRect().x - 15;
 
   stationLookUp().then(function(data) {
     let out = new Map();
@@ -261,8 +264,8 @@ function showLabel(d, callType) {
 function moveLabel() {
   var coords = [d3.event.clientX, d3.event.clientY];
 
-  var top = coords[1] + 15,
-    left = coords[0] + 10;
+  var top = coords[1] - d3.select("#d3ImplementationSection").node().getBoundingClientRect().y - 30,
+    left = coords[0] - d3.select("#d3ImplementationSection").node().getBoundingClientRect().x - 15;
 
   div.style("top", top + "px")
     .style("left", left + "px");
@@ -322,7 +325,7 @@ function numberFormatter(number) {
 }
 
 function drawCircleLegend() {
-  const legendWidth = 500;
+  const legendWidth = 300;
   const legendHeight = 500;
 
   let svg = d3.select("body").select("#legend-svg")
@@ -347,6 +350,8 @@ function drawCircleLegend() {
     .orient('vertical')
     .on('cellclick', function(d) {
       toggleDataPoints(d);
+      const legendCell = d3.select(this);
+      legendCell.classed('hidden', !legendCell.classed('hidden')); // toggle opacity of legend item
     });
 
   group.call(legendSize);
@@ -389,7 +394,11 @@ function drawColorLegend() {
     .shapeWidth(20)
     .shapeHeight(20)
     .labelOffset(12)
-    .on('cellclick', filterCallTypeGroup);
+    .on('cellclick', function(d) {
+      filterCallTypeGroup(d);
+      const legendCell = d3.select(this);
+      legendCell.classed('hidden', !legendCell.classed('hidden')); // toggle opacity of legend item
+    });
 
   group.call(colorLegend);
 }
@@ -428,11 +437,25 @@ function filterStation() {
     });
 }
 
-function filterCallTypeGroup() {
-  let c = d3.select(this).text();
+function filterCallTypeGroup(c) {
+  //let c = d3.select(this).text();
   d3.selectAll("#main-svg circle")
     .filter(function(d) {
       return d[3] != c;
+    }).classed('hidden', function() { // toggle "hidden" class
+      return !d3.select(this).classed('hidden');
+    });
+}
+
+function filterByBattalionAndStation(c) {
+  d3.selectAll("#main-svg circle")
+    .classed('hidden', function() { // toggle "hidden" class
+      return !d3.select(this).classed('hidden');
+    });
+
+  d3.selectAll("#main-svg circle")
+    .filter(function(d) {
+      return d[0] == c[0] && d[1] == c[1];
     }).classed('hidden', function() { // toggle "hidden" class
       return !d3.select(this).classed('hidden');
     });
